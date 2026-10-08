@@ -1,0 +1,28 @@
+FROM debian:trixie
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+        debootstrap \
+        parted \
+        util-linux \
+        e2fsprogs \
+        dosfstools \
+        mount \
+        rsync \
+        grub-efi-amd64 \
+        grub-pc-bin \
+        grub2-common \
+        zstd \
+        ca-certificates \
+        systemd-container \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY build-image.sh /usr/local/bin/build-image.sh
+
+RUN chmod +x /usr/local/bin/build-image.sh
+
+ENTRYPOINT ["/usr/local/bin/build-image.sh"]
