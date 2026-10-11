@@ -177,6 +177,14 @@ apt-get install -y \
     network-manager \
     firmware-linux \
     firmware-linux-free \
+    firmware-linux-nonfree \
+    firmware-iwlwifi \
+    firmware-realtek \
+    firmware-atheros \
+    firmware-brcm80211 \
+    firmware-mediatek \
+    firmware-libertas \
+    firmware-misc-nonfree \
     grub-efi-amd64 \
     grub2-common \
     efibootmgr \
