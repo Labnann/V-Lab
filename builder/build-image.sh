@@ -334,21 +334,6 @@ umount "$MOUNT_ROOT"
 losetup -d "$LOOPDEV"
 LOOPDEV=""
 
-rm -rf "$ROOTFS" "$MOUNT_ROOT"
-
-echo "Compressing image..."
-
-zstd \
-    --threads=0 \
-    --ultra \
-    -22 \
-    "$IMAGE" \
-    -o "$COMPRESSED"
-
-sha256sum \
-    "$IMAGE" \
-    "$COMPRESSED" \
-    > "$CHECKSUMS"
 
 echo
 echo "======================================"
@@ -356,11 +341,7 @@ echo " VLab image created successfully"
 echo "======================================"
 echo
 echo "Raw image:      $IMAGE"
-echo "Compressed:     $COMPRESSED"
-echo "Checksums:      $CHECKSUMS"
 echo
 
 ls -lh \
-    "$IMAGE" \
-    "$COMPRESSED" \
-    "$CHECKSUMS"
+    "$IMAGE" 
