@@ -112,12 +112,22 @@ mount "$EFI_PART" "$MOUNT_EFI"
 
 echo "[7/10] Installing Debian base system..."
 
-debootstrap \
-    --arch=amd64 \
-    --variant=minbase \
-    "$DEBIAN_RELEASE" \
-    "$ROOTFS" \
-    "$DEBIAN_MIRROR"
+DEBOOTSTRAP_CACHE="/cache/debootstrap-${DEBIAN_RELEASE}-amd64-minbase"
+
+if [ ! -f "$DEBOOTSTRAP_CACHE/.debootstrap-done" ]; then
+    mkdir -p "$DEBOOTSTRAP_CACHE"
+
+    debootstrap \
+        --arch=amd64 \
+        --variant=minbase \
+        "$DEBIAN_RELEASE" \
+        "$DEBOOTSTRAP_CACHE" \
+        "$DEBIAN_MIRROR"
+
+    touch "$DEBOOTSTRAP_CACHE/.debootstrap-done"
+fi
+
+cp -a "$DEBOOTSTRAP_CACHE/." "$ROOTFS/"
 
 echo "[8/10] Configuring Debian..."
 

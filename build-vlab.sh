@@ -1,45 +1,9 @@
-#!/usr/bin/env bash
-set -euo pipefail
+sudo podman build -t localhost/vlab-builder ./builder
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT="$ROOT/output"
+mkdir -p output debootstrap-cache
 
-mkdir -p "$OUTPUT"
-
-if ! command -v podman >/dev/null 2>&1; then
-    echo "ERROR: Podman is required."
-    exit 1
-fi
-
-echo "=============================================="
-echo "VLab image builder"
-echo "=============================================="
-echo
-
-echo "[1/2] Building builder container..."
-
-podman build \
-    --tag vlab-builder \
-    "$ROOT/builder"
-
-echo
-echo "[2/2] Building VLab image..."
-echo
-
-podman run \
-    --rm \
-    --privileged \
-    -v "$OUTPUT:/output:Z" \
-    vlab-builder
-
-echo
-echo "=============================================="
-echo "Build complete"
-echo "=============================================="
-echo
-echo "Output:"
-echo
-echo "  $OUTPUT/vlab-amd64.img"
-echo "  $OUTPUT/vlab-amd64.img.zst"
-echo "  $OUTPUT/SHA256SUMS"
-echo
+sudo podman run --rm --privileged \
+    -v /dev:/dev \
+    -v "$PWD/output:/output:Z" \
+    -v "$PWD/debootstrap-cache:/cache:Z" \
+    localhost/vlab-builder
