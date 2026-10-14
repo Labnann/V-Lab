@@ -226,10 +226,7 @@ systemctl enable NetworkManager
 systemctl enable gdm
 
 useradd -m -s /bin/bash -G sudo student
-
-cat > /etc/sudoers.d/student <<EOF
-student ALL=(ALL) NOPASSWD:ALL
-EOF
+echo 'student:vlab' | chpasswd
 
 chmod 440 /etc/sudoers.d/student
 
@@ -269,14 +266,6 @@ if [[ -f /var/lib/vlab/initialized ]]; then
     exit 0
 fi
 
-echo
-echo "======================================"
-echo " VLab first boot"
-echo " Set the password for user: student"
-echo "======================================"
-echo
-
-passwd student
 
 mkdir -p /var/lib/vlab
 touch /var/lib/vlab/initialized
