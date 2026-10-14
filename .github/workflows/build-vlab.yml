@@ -1,0 +1,84 @@
+name: Build VLab
+
+on:
+  workflow_dispatch:
+    push:
+      tags:
+        - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Podman and zstd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman zstd
+
+      - name: Prepare directories
+        run: |
+          mkdir -p output debootstrap-cache
+          df -h /
+
+      - name: Restore debootstrap cache
+        uses: actions/cache@v4
+        with:
+          path: debootstrap-cache
+          key: vlab-debootstrap-trixie-amd64-minbase-v1
+
+      - name: Build VLab image
+        run: |
+          sudo podman build \
+          -t localhost/vlab-builder \
+          ./builder
+
+          sudo podman run --rm --privileged \
+          -v /dev:/dev \
+          -v "$PWD/output:/output:Z" \
+                                    -v "$PWD/debootstrap-cache:/cache:Z" \
+                                                                        localhost/vlab-builder
+
+      - name: Compress image and generate checksum
+        run: |
+          zstd -T0 -3 -f \
+          output/vlab-amd64.img \
+          -o output/vlab-amd64.img.zst
+
+          cd output
+          sha256sum vlab-amd64.img.zst > SHA256SUMS
+          rm vlab-amd64.img
+
+      - name: Fix cache directory ownership
+        if: always()
+        run: |
+          sudo chown -R "$USER":"$(id -gn)" debootstrap-cache || true
+
+      - name: Publish GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+                                              output/vlab-amd64.img.zst \
+                                              output/SHA256SUMS \
+                                              --title "$GITHUB_REF_NAME" \
+                                                                        --generate-notes
+
+      - name: Upload temporary build artifact
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vlab-amd64
+          path: |
+            output/vlab-amd64.img.zst
+            output/SHA256SUMS
+          retention-days: 1
+          if-no-files-found: error
