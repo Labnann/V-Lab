@@ -228,7 +228,6 @@ systemctl enable gdm
 useradd -m -s /bin/bash -G sudo student
 echo 'student:vlab' | chpasswd
 
-chmod 440 /etc/sudoers.d/student
 
 cat > /usr/local/sbin/vlab-grow-root <<'EOF'
 #!/bin/bash
