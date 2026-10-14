@@ -5,7 +5,7 @@ IMAGE="/output/vlab-amd64.img"
 COMPRESSED="/output/vlab-amd64.img.zst"
 CHECKSUMS="/output/SHA256SUMS"
 
-IMAGE_SIZE="8G"
+IMAGE_SIZE="16G"
 
 DEBIAN_RELEASE="trixie"
 DEBIAN_MIRROR="https://deb.debian.org/debian"
@@ -208,7 +208,10 @@ apt-get install -y \
     nasm \
     qemu-system-x86 \
     qemu-utils \
-    cloud-guest-utils
+    cloud-guest-utils \
+    plymouth \
+    plymouth-themes
+
 
 echo "vlab" > /etc/hostname
 
@@ -309,6 +312,15 @@ touch /etc/machine-id
 apt-get clean
 rm -rf /var/lib/apt/lists/*
 CHROOT
+
+
+echo "[8.25/10] Running hooks..."
+
+/usr/local/lib/vlab/hooks/setup-logos.sh "$MOUNT_ROOT"
+/usr/local/lib/vlab/hooks/setup-plymouth.sh "$MOUNT_ROOT"
+
+echo "[8.5/10] Regenerating initramfs..."
+chroot "$MOUNT_ROOT" update-initramfs -u -k all
 
 echo "[9/10] Installing GRUB..."
 
