@@ -24,7 +24,7 @@ RUN apt-get update && \
 
 COPY build-image.sh /usr/local/bin/build-image.sh
 COPY hooks/ /usr/local/lib/vlab/hooks
-COPY assets/vlab_logos/ /usr/local/share/vlab/assets/vlab_logos
+COPY assets/vlab_logos/ /usr/local/share/vlab/assets/vlab-logos
 
 RUN chmod +x /usr/local/lib/vlab/hooks/*.sh
 RUN chmod +x /usr/local/bin/build-image.sh
