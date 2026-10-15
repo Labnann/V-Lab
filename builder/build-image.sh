@@ -355,6 +355,7 @@ echo " VLab image created successfully"
 echo "======================================"
 echo
 echo "Raw image:      $IMAGE"
+sha256sum $IMAGE
 echo
 
 ls -lh \
