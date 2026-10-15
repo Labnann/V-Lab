@@ -167,9 +167,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 
-apt-get install -y \
+apt-get install -y --no-install-recommends \
     linux-image-amd64 \
-    linux-headers-amd64 \
     systemd \
     systemd-sysv \
     dbus \
@@ -188,7 +187,7 @@ apt-get install -y \
     grub-efi-amd64 \
     grub2-common \
     efibootmgr \
-    task-gnome-desktop \
+    gnome-core \
     gnome-terminal \
     gcc \
     g++ \
@@ -198,16 +197,10 @@ apt-get install -y \
     cmake \
     pkg-config \
     git \
-    vim \
     nano \
-    tmux \
     strace \
-    ltrace \
     python3 \
-    python3-pip \
     nasm \
-    qemu-system-x86 \
-    qemu-utils \
     cloud-guest-utils \
     plymouth \
     plymouth-themes
@@ -297,8 +290,19 @@ systemctl disable apt-daily-upgrade.timer || true
 rm -f /etc/machine-id
 touch /etc/machine-id
 
+apt-get autoremove --purge -y
 apt-get clean
 rm -rf /var/lib/apt/lists/*
+rm -rf /var/cache/*
+rm -rf /tmp/*
+rm -rf /var/tmp/*
+
+dpkg-query -W \
+    -f='${Installed-Size}\t${binary:Package}\n' |
+    sort -nr |
+    head -40
+
+
 CHROOT
 
 
@@ -331,6 +335,8 @@ chroot "$MOUNT_ROOT" update-grub
 echo "[10/10] Finalizing..."
 
 sync
+
+du -xhd1 "$MOUNT_ROOT" | sort -h
 
 umount "$MOUNT_ROOT/dev/pts"
 umount "$MOUNT_ROOT/dev"
