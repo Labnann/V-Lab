@@ -1,14 +1,13 @@
+
 #!/bin/sh
 set -eu
 
 ROOTFS="${1:?Usage: setup-logos.sh ROOTFS}"
+SOURCE="/usr/local/share/vlab/assets/vlab-logos"
 DEST="/usr/share/desktop-base/vlab-logos"
 
-# Do nothing if the VLab logo directory does not exist.
-if [ ! -d "$ROOTFS$DEST" ]; then
-    echo "VLab logos not found; keeping Debian defaults."
-    exit 0
-fi
+mkdir -p "$ROOTFS$DEST"
+cp -a "$SOURCE/." "$ROOTFS$DEST/"
 
 chroot "$ROOTFS" update-alternatives --install \
     /usr/share/images/vendor-logos \
@@ -19,3 +18,4 @@ chroot "$ROOTFS" update-alternatives --set \
     vendor-logos "$DEST"
 
 echo "VLab logos enabled."
+
