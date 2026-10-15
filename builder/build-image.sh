@@ -168,6 +168,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 
 apt-get install -y --no-install-recommends \
+    zstd \
     linux-image-amd64 \
     systemd \
     systemd-sysv \
